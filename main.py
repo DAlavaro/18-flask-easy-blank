@@ -21,7 +21,7 @@ def create_app(config_object) -> Flask:
     # задаем конфигурацию приложения вызвав специальный метод from_object
     app.config.from_object(config_object)
     # применяем конфигурацию чтобы Flask по всему приложению ее применил во все будущие компоненты
-    configure_app(app)
+    app.app_context().push()
     return app
 
 
@@ -32,6 +32,7 @@ def configure_app(app: Flask):
     # обращаемся к базе данных и вызываем метод init_app
     db.init_app(app)
     api = Api(app)
+
     # вместо создания namespace реализуем добавление
     api.add_namespace(movie_ns)
     api.add_namespace(directors_ns)
@@ -40,4 +41,5 @@ def configure_app(app: Flask):
 
 if __name__ == '__main__':
     app = create_app(Config())
+    configure_app(app)
     app.run(host="localhost", port=10001, debug=True)

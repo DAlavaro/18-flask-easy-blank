@@ -14,35 +14,20 @@ class MoviesView(Resource):
     def get(self):
         """
         GET /movies — получить все фильмы
+        - [ ]  GET /movies?director_id=15?genre_id=3 — получить все фильмы режиссера.
+        - [ ]  GET /movies?genre_id=3 — получить все фильмы жанра.
+        - [ ]  GET /movies?year=2007 — получить все фильмы за год.
         """
-        try:
-            all_movies = db.session.query(Movie).all()
-            movies = movies_schema.dump(all_movies)
-
-            # При квери-запросе по director
-            data_director = request.args.get('director_id')
-            if data_director:
-                data = db.session.query(Movie).filter(Movie.director_id == data_director).all()
-                movies = movies_schema.dump(data)
-
-            # При квери-запросе по genre
-            data_genre = request.args.get('genre_id')
-            if data_genre:
-                data = db.session.query(Movie).filter(Movie.genre_id == data_genre).all()
-                movies = movies_schema.dump(data)
-
-            # При квери-запросе по year
-            data_year = request.args.get('year')
-            if data_year:
-                data = db.session.query(Movie).filter(Movie.year == data_year).all()
-                movies = movies_schema.dump(data)
-
-            # Если запрос возвращает пустой список, то возвращается 'No such movie'
-            if len(movies) == 0:
-                return 'No such movie', 200
-            return movies
-        except Exception as e:
-            return f'{e}', 404
+        all_movies = db.session.query(Movie).all()
+        # movies = movies_schema.dump(all_movies)
+        director = request.args.get('director_id')
+        genre = request.args.get('genre_id')
+        if director:
+            all_movies = db.session.query(Movie).filter(Movie.director_id == director).all()
+        if genre:
+            all_movies = db.session.query(Movie).filter(Movie.genre_id == director).all()
+        movies = movies_schema.dump(all_movies)
+        return movies
 
     def post(self):
         """
@@ -61,7 +46,7 @@ class MoviesView(Resource):
 
 
 
-@movie_ns.route('/<int:id_>')
+@movie_ns.route('/<int:id_>/')
 class BookView(Resource):
 
     def get(self, id_: int):
@@ -70,7 +55,7 @@ class BookView(Resource):
         """
         try:
             movies = db.session.query(Movie).filter(Movie.id == id_).one()
-            return movies_schema.dump(movies), 200
+            return movie_schema.dump(movies), 200
         except Exception as e:
             return str(e), 404
 
