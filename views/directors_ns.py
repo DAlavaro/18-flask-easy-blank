@@ -1,7 +1,7 @@
 # Импорт необходимых библиотек
 from flask_restx import Namespace, Resource
 
-from model.director_model import DirectorSchema
+from model.director_model import DirectorSchema, Director
 # Импорт модели
 
 
@@ -27,15 +27,15 @@ class DirectorsViews(Resource):
             return f'{e}', 404
 
 
-@directors_ns.route('/<did>')
+@directors_ns.route('/<id_>')
 class DirectorViews(Resource):
-    def get(self, did):
+    def get(self, id_):
         """
             Формирование представления для получения режиссера по id
             В случае отсутствия фильма - ошибка
         """
         try:
-            director = db.session.query(Director).filter(Director.id == did).one()
+            director = db.session.query(Director).filter(Director.id == id_).one()
             return director_schema.dump(director), 200
         except Exception as e:
             return f'{e}', 404
